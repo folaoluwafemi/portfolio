@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-tablet: 744px;
+  --breakpoint-desktop: 1280px;
+  --breakpoint-monitor: 1728px;
+
+  /*
+   * Semantic color tokens, ported from the Harpenin design system
+   * (src/core/design_system/theme/Colors.ts). True-grey dark theme on
+   * #171717 with #262626 cards; light theme per Harpenin's neutrals.
+   * Components use ONLY these semantic utilities (bg-surface-primary,
+   * text-content-strong, border-border-default…) — never raw hex.
+   */
+  --color-surface-primary: var(--surface-primary);
+  --color-surface-card: var(--surface-card);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-border-default: var(--border-default);
+
+  --color-content-strong: var(--content-strong);
+  --color-content-secondary: var(--content-secondary);
+  --color-content-tertiary: var(--content-tertiary);
+  --color-content-inverted: var(--content-inverted);
+
+  --color-brand: #ff4d00;
+  --color-brand-magenta: #e000e0;
+  --color-brand-blue: #1d4ed8;
+  --color-success: #38b745;
+  --color-error: #ef3434;
+
+  --font-heading: var(--font-spline-sans-var);
+  --font-body: var(--font-manrope-var);
+}
+
+:root,
+[data-theme="dark"] {
+  --surface-primary: #171717;
+  --surface-card: #262626;
+  --surface-subtle: #202020;
+  --border-default: #525252;
+
+  --content-strong: #ffffff;
+  --content-secondary: #e5e5e5;
+  --content-tertiary: #a3a3a3;
+  --content-inverted: #171717;
+}
+
+[data-theme="light"] {
+  --surface-primary: #f5f5f5;
+  --surface-card: #ffffff;
+  --surface-subtle: #ebebeb;
+  --border-default: #e5e5e5;
+
+  --content-strong: #171717;
+  --content-secondary: #404040;
+  --content-tertiary: #737373;
+  --content-inverted: #ffffff;
+}
+
+@layer base {
+  html {
+    background-color: var(--surface-primary);
+    color: var(--content-strong);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Magic text: cursor-tracked radial reveal (hero). */
+.magic-text {
+  --ink: currentColor;
+  position: relative;
+}
+
+.magic-text__overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    70% 70% at calc(50% + 50% * var(--magic-x, 0))
+      calc(50% + 50% * var(--magic-y, 0)),
+    color-mix(in srgb, var(--ink) 30%, transparent),
+    var(--ink) 70%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.magic-text:hover .magic-text__overlay {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .magic-text__overlay {
+    opacity: 0 !important;
+  }
+}
+
+/*
+ * Harpenin effect primitives (see .agents/skills/premium-ui-effects):
+ * shimmer sweep, pulsing beacon, self-pruning floating particles, and the
+ * press-scale spring — all pure CSS so they honor the reduced-motion
+ * switch above.
+ */
+@keyframes shimmer-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+
+.shimmer-box {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--surface-card);
+}
+
+.shimmer-box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--border-default) 33%, transparent),
+    transparent
+  );
+  animation: shimmer-sweep 900ms ease-in-out infinite;
+}
+
+@keyframes beacon-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.beacon {
+  animation: beacon-pulse 900ms ease-in-out infinite;
+}
+
+@keyframes particle-rise {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift, 0px), var(--rise, -320px))
+      scale(var(--end-scale, 1.1));
+  }
+}
+
+.particle {
+  animation: particle-rise 2000ms ease-out forwards;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
